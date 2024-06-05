@@ -6,8 +6,8 @@ const withNextra = require("nextra")({
 });
 
 const nextConfig = {
-  basePath: "/docs",
-  assetPrefix: "/docs/",
+  basePath: "",
+  assetPrefix: "/",
   reactStrictMode: true,
   output: isProd ? "export" : "standalone",
   distDir: "dist",
