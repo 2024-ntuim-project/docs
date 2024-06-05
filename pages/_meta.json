@@ -1,5 +1,5 @@
 {
-  "index": "Introduction",
+  "index": "介紹",
   "another": "Another Page",
   "advanced": "Advanced (A Folder)",
   "about": {
@@ -7,9 +7,9 @@
     "type": "page"
   },
   "contact": {
-    "title": "Contact ↗",
+    "title": "聯絡我 ↗",
     "type": "page",
-    "href": "https://twitter.com/shuding_",
+    "href": "https://2024-ntuim-project.github.io/docs/",
     "newWindow": true
   }
 }
