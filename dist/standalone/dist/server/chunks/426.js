@@ -1,0 +1,1 @@
+"use strict";exports.id=426,exports.ids=[426],exports.modules={8426:(e,s,t)=>{t.d(s,{Z:()=>d});var o=t(997);t(6689);let r={logo:o.jsx("span",{children:"上田鋁業鋁門窗生產規劃專案"}),footer:{text:"臺大資管孔令傑教授專題學生團隊"}},d=r}};
