@@ -1,7 +1,10 @@
 {
   "index": "介紹",
-  "another": "Another Page",
-  "advanced": "Advanced (A Folder)",
+  "description": "專案說明",
+  "data-storage": {
+    "title": "資料儲存"
+  },
+  
   "about": {
     "title": "About",
     "type": "page"
