@@ -1,0 +1,366 @@
+# API Gateway
+
+[線上 API Spec](https://api-gateway-235048172314.asia-east1.run.app/docs)
+
+API Gateway 是生產規劃系統的入口，用戶可以通過 API Gateway 來插入訂單、環境參數等，並選擇相應訂單和工廠參數生成一個最佳生產規劃模型參數，最後再向系統發送排程請求。
+
+我們使用 FastAPI 來實現 API Gateway，並使用 Docker 部署到 Cloud Run 上。
+
+## API Spec
+
+### Orders
+
+1.  `GET` `/orders`
+
+    - 取得所有訂單。
+    - Response:
+      ```json
+      ["string"]
+      ```
+      - `string`: 訂單 ID。
+
+2.  `GET` `/orders/{order_id}`
+
+    - 取得特定訂單。
+    - Response:
+      ```json
+      {
+        "id": "string",
+        "name": "string",
+        "suborders": [
+          {
+            "window": {
+              "id": "string",
+              "name": "string",
+              "width": 0,
+              "height": 0,
+              "color": "string",
+              "notes": "string",
+              "needed_works": [0],
+              "transfer_ratio": [0],
+              "present_storage": [0]
+            },
+            "count": 0
+          }
+        ],
+        "deadline": "string",
+        "early_panality": 0,
+        "late_panality": 0
+      }
+      ```
+      - `id`: 訂單 ID。
+      - `name`: 訂單名稱。
+      - `suborders`: 製造需求單。
+      - `window`: 窗戶資訊。
+        - `id`: 窗戶 ID。
+        - `name`: 窗戶名稱。
+        - `width`: 寬度。
+        - `height`: 高度。
+        - `color`: 顏色。
+        - `notes`: 備註。
+        - `needed_works`: 需要的工作量，如時間。
+        - `transfer_ratio`: 轉換率。
+        - `present_storage`: 現有庫存。
+      - `count`: 數量。
+      - `deadline`: 截止日期。
+      - `early_panality`: 提早交貨懲罰。
+      - `late_panality`: 延遲交貨懲罰。
+
+3.  `POST` `/orders`
+
+    - 新增訂單。
+    - Request:
+      ```json
+      {
+        "name": "string",
+        "suborders": [
+          {
+            "window": {
+              "id": "string",
+              "name": "string",
+              "width": 0,
+              "height": 0,
+              "color": "string",
+              "notes": "string",
+              "needed_works": [0],
+              "transfer_ratio": [0],
+              "present_storage": [0]
+            },
+            "count": 0
+          }
+        ],
+        "deadline": "string",
+        "early_panality": 0,
+        "late_panality": 0
+      }
+      ```
+          - `name`: 訂單名稱。
+          - `suborders`: 製造需求單。
+          - `window`: 窗戶資訊。
+              - `id`: 窗戶 ID。
+              - `name`: 窗戶名稱。
+              - `width`: 寬度。
+              - `height`: 高度。
+              - `color`: 顏色。
+              - `notes`: 備註。
+              - `needed_works`: 需要的工作量，如時間。
+              - `transfer_ratio`: 轉換率。
+              - `present_storage`: 現有庫存。
+          - `count`: 數量。
+          - `deadline`: 截止日期。
+          - `early_panality`: 提早交貨懲罰。
+          - `late_panality`: 延遲交貨懲罰。
+      Response:
+
+    ```json
+    {
+      "id": "string"
+    }
+    ```
+
+         - `id`: 訂單 ID。
+
+### Factory
+
+註：以下的 `version` 參數是用來指定工廠參數的版本號，Optional。如果不指定，則返回最新版本的工廠參數。
+
+1.  `GET` `/factory/settings?version={version}`
+
+    - 取得工廠參數。這其實是工廠參數和超參數的結合體。
+    - Response:
+      ```json
+      {
+        "version": "string",
+        "utilization": 0,
+        "stages": [
+          {
+            "machines": [
+              {
+                "name": "string",
+                "production": 0
+              }
+            ],
+            "startup_cost": 0,
+            "storage_capacity": 0,
+            "version": "string",
+            "stage_num": 0
+          }
+        ],
+        "early_hyper_parameter": 0,
+        "late_hyper_parameter": 0
+      }
+      ```
+        - `version`: 版本號。
+        - `utilization`: 工廠利用率。
+        - `stages`: 工廠階段。
+        - `machines`: 機器。
+          - `name`: 機器名稱。
+          - `production`: 生產量。
+        - `startup_cost`: 啟動成本。
+        - `storage_capacity`: 儲存容量。
+        - `early_hyper_parameter`: 提早交貨超參數。
+        - `late_hyper_parameter`: 延遲交貨超參數。
+
+
+2.  `GET` `/factory/stage/{stage_num}?version={version}`
+
+    - 取得特定工廠參數。
+    - Response:
+      ```json
+      {
+        "machines": [
+            {
+            "name": "string",
+            "production": 0
+            }
+        ],
+        "startup_cost": 0,
+        "storage_capacity": 0,
+        "version": "string",
+        "stage_num": 0
+        }
+      ```
+        - `machines`: 機器。
+          - `name`: 機器名稱。
+          - `production`: 生產量。
+        - `startup_cost`: 啟動成本。
+        - `storage_capacity`: 儲存容量。
+        - `version`: 版本號。
+        - `stage_num`: 階段編號。
+
+3.  `POST` `/factory/stage/{stage_num}?version={version}`
+
+    - 新增工廠參數。
+    - Request:
+      ```json
+      {
+        "machines": [
+          {
+            "name": "string",
+            "production": 0
+          }
+        ],
+        "startup_cost": 0,
+        "storage_capacity": 0
+      }
+      ```
+        - `machines`: 機器。
+          - `name`: 機器名稱。
+          - `production`: 生產量。
+        - `startup_cost`: 啟動成本。
+        - `storage_capacity`: 儲存容量。
+
+4.  `GET` `/factory/hyper?version={version}`
+
+    - 取得用來調整模型的超參數。
+    - Response:
+      ```json
+      {
+        "utilization": 0,
+        "early_hyper_parameter": 0,
+        "late_hyper_parameter": 0,
+        "version": "string"
+        }
+      ```
+        - `utilization`: 工廠利用率。
+        - `early_hyper_parameter`: 提早交貨超參數。
+        - `late_hyper_parameter`: 延遲交貨超參數。
+
+5.  `POST` `/factory/hyper?version={version}`
+
+    - 新增用來調整模型的超參數。
+    - Request:
+      ```json
+      {
+        "utilization": 0,
+        "early_hyper_parameter": 0,
+        "late_hyper_parameter": 0
+        }
+      ```
+        - `utilization`: 工廠利用率。
+        - `early_hyper_parameter`: 提早交貨超參數。
+        - `late_hyper_parameter`: 延遲交貨超參數。
+
+### Plans
+
+1. `GET` `/plans`
+
+   - 取得所有排程計畫。
+    - Response:
+      ```json
+      ["string"]
+      ```
+         - `string`: 排程計畫 ID。
+
+2. `GET` `/plans/{plan_id}`
+
+   - 取得特定排程計畫。
+   - Response:
+     ```json
+     {
+        "id": "string",
+        "name": "string",
+        "operator": "string",
+        "time": "2024-09-25T18:05:40.686Z",
+        "existing_orders": [
+            "string"
+        ],
+        "new_orders": [
+            "string"
+        ],
+        "start": "2024-09-25T18:05:40.686Z",
+        "end": "2024-09-25T18:05:40.686Z",
+        "time_segemnt_cnt": 0,
+        "factory_setting": "string",
+        "params_id": "string"
+        }
+     ```
+        - `id`: 排程計畫 ID。
+        - `name`: 排程計畫名稱。
+        - `operator`: 操作者。
+        - `time`: 時間。
+        - `existing_orders`: 現有訂單。
+        - `new_orders`: 新訂單。
+        - `start`: 開始時間。
+        - `end`: 結束時間。
+        - `time_segemnt_cnt`: 時間段數量。
+        - `factory_setting`: 工廠設定。
+        - `params_id`: 參數 ID。
+
+3. `POST` `/plans`
+
+   - 新增排程計畫。
+   - Request:
+     ```json
+     {
+        "name": "string",
+        "operator": "string",
+        "time": "2024-09-25T18:06:48.169Z",
+        "existing_orders": [
+            "string"
+        ],
+        "new_orders": [
+            "string"
+        ],
+        "start": "2024-09-25T18:06:48.170Z",
+        "end": "2024-09-25T18:06:48.170Z",
+        "time_segemnt_cnt": 0,
+        "factory_setting": "string"
+        }
+     ```
+        - `name`: 排程計畫名稱。
+        - `operator`: 操作者。
+        - `time`: 時間。
+        - `existing_orders`: 現有訂單。
+        - `new_orders`: 新訂單。
+        - `start`: 開始時間。
+        - `end`: 結束時間。
+        - `time_segemnt_cnt`: 時間段數量。
+        - `factory_setting`: 工廠設定。
+
+4. `POST` `/plans/run/{plan_id}`
+
+    - 執行排程計畫。
+    - Response:
+        ```json
+        {
+            "id": "string",
+            "name": "string",
+            "operator": "string",
+            "time": "2024-09-25T18:05:40.686Z",
+            "existing_orders": [
+                "string"
+            ],
+            "new_orders": [
+                "string"
+            ],
+            "start": "2024-09-25T18:05:40.686Z",
+            "end": "2024-09-25T18:05:40.686Z",
+            "time_segemnt_cnt": 0,
+            "factory_setting": "string",
+            "params_id": "string"
+        }
+        ```
+            - `id`: 排程計畫 ID。
+            - `name`: 排程計畫名稱。
+            - `operator`: 操作者。
+            - `time`: 時間。
+            - `existing_orders`: 現有訂單。
+            - `new_orders`: 新訂單。
+            - `start`: 開始時間。
+            - `end`: 結束時間。
+            - `time_segemnt_cnt`: 時間段數量。
+            - `factory_setting`: 工廠設定。
+            - `params_id`: 參數 ID。
+
+5. `GET` `/plans/run/{plan_id}`
+
+   - 取得排程計畫的執行結果。
+    - Not implemented.
+
+## 使用情境
+
+1. 用戶新增一些需要被生產規劃的訂單。使用 `POST` `/orders`。
+2. 用戶寫入工廠參數。使用 `POST` `/factory/stage/{stage_num}`。
+3. 用戶選擇相應訂單和工廠參數生成一個最佳生產規劃模型參數。使用 `POST` `/plans`。
+4. 用戶向系統發送排程請求。使用 `POST` `/plans/run/{plan_id}`。

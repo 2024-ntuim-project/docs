@@ -1,12 +1,12 @@
 {
   "index": "介紹",
   "description": "專案說明",
-  "data-storage": {
-    "title": "資料儲存"
+  "system": {
+    "title": "系統說明"
   },
   
   "about": {
-    "title": "About",
+    "title": "關於",
     "type": "page"
   },
   "contact": {

@@ -1,0 +1,7 @@
+# Pub/Sub
+
+當 Firestore 中的生產規劃被新增時，會觸發 Pub/Sub 事件，通知後續排程系統有新的資料可以進行處理。具體方式如下：
+
+1. Firestore 觸發 Pub/Sub（發布/訂閱系統），將訊息發布給訂閱者。
+2. 在這裡，Pub/Sub 的作用是負責消息的傳遞，通知有新訂單需要進行處理。
+3. Pub/Sub 事件的訂閱者是部署在 Cloud Functions 上的一個函數，當收到通知後，會向 Cloud Run 的 Scheduler Model 發送請求，要求進行排程模型的計算。
